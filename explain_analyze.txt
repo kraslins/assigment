@@ -1,0 +1,12 @@
+Nested Loop  (cost=4.45..35.50 rows=10 width=144) (actual time=0.035..0.082 rows=2 loops=1)
+  ->  Bitmap Heap Scan on order_items oi  (cost=4.15..15.25 rows=10 width=48) (actual time=0.021..0.025 rows=2 loops=1)
+        Recheck Cond: (order_id = 1)
+        ->  Bitmap Index Scan on order_items_order_id_idx  (cost=0.00..4.12 rows=10 width=0) (actual time=0.012..0.012 rows=2 loops=1)
+              Index Cond: (order_id = 1)
+  ->  Index Scan using products_pkey on products p  (cost=0.30..2.02 rows=1 width=118) (actual time=0.025..0.026 rows=1 loops=2)
+        Index Cond: (product_id = oi.product_id)
+Planning Time: 0.285 ms
+Execution Time: 0.115 ms
+
+Explanation:
+PostgreSQL executes this query using a Nested Loop operation to combine data from the 'order_items' and 'products' tables. First, it performs a Bitmap Index Scan on 'order_items' using the foreign key index to instantly find rows where order_id equals 1. Then, for each matching row found in the items table, PostgreSQL uses an Index Scan on the primary key of the 'products' table ('products_pkey') to fetch the corresponding product names. This approach is highly efficient because it completely avoids a slow Sequential Scan on both tables and uses indexes for all lookups.
